@@ -2,7 +2,7 @@ library(tidyverse)
 library(sf)
 library(raster)
 
-setwd("~/UC Davis/Research Projects/Lauder drought metric comparison/dendro")
+setwd("~/Research Projects/Lauder drought metric comparison/dendro")
 
 
 #### Load and prep non-species-specific data files ####
@@ -35,15 +35,35 @@ plots$prism_ppt = extract(prism_ppt,plots,method="bilinear")
 
 species_thresholds = data.frame() # initialize data frame for storing species thresholds
 
-species_opts = c("abieconc","abiemagn","pinulamb","pinupond","pinusabi","pseumenz")
+species_opts = c("abieconc","abiemagn","pinulamb","pinupond","pinusabi","pseumenz","pinujeff","pinuyell")
 
 for(species in species_opts) {
   
-  # Load species distribution (Little's range maps downloaded from: https://github.com/wpetry/USTreeAtlas)
-  sp_distrib_file = paste0("data/distrib/species/",species,"/",species,".shp")
-  sp_distrib = st_read(sp_distrib_file) %>% st_union
-  st_crs(sp_distrib) = 4326
-  sp_distrib = st_transform(sp_distrib,3310)
+  if(species == "pinuyell") {
+    
+    # Load species distribution (Little's range maps downloaded from: https://github.com/wpetry/USTreeAtlas)
+    sp_distrib_file = paste0("data/distrib/species/","pinupond","/","pinupond",".shp")
+    sp_distrib = st_read(sp_distrib_file) %>% st_union
+    st_crs(sp_distrib) = 4326
+    sp_distrib1 = st_transform(sp_distrib,3310)
+    
+    # Load species distribution (Little's range maps downloaded from: https://github.com/wpetry/USTreeAtlas)
+    sp_distrib_file = paste0("data/distrib/species/","pinujeff","/","pinujeff",".shp")
+    sp_distrib = st_read(sp_distrib_file) %>% st_union
+    st_crs(sp_distrib) = 4326
+    sp_distrib2 = st_transform(sp_distrib,3310)
+    
+    sp_distrib = st_union(sp_distrib1,sp_distrib2)
+    
+  } else  {
+  
+    # Load species distribution (Little's range maps downloaded from: https://github.com/wpetry/USTreeAtlas)
+    sp_distrib_file = paste0("data/distrib/species/",species,"/",species,".shp")
+    sp_distrib = st_read(sp_distrib_file) %>% st_union
+    st_crs(sp_distrib) = 4326
+    sp_distrib = st_transform(sp_distrib,3310)
+  
+  }
   
   # Intersect species distrib with Sierra
   sp_sierra = st_intersection(sp_distrib,sierra)
